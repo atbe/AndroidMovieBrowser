@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     /** This handler will go fetch a list of movies and add them to the movie list
      *
-     * @param view
+     * @param view The view the button was clicked from.
      */
     public void onClickRefreshListButton(View view) {
 
@@ -59,32 +59,33 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Handles our movie request
+    /** Handles our movie requests and updates the listview.
+     */
     private class GetTopMovies extends AsyncTask<String, Void, MovieResultsPage> {
 
         @Override
+        /** Initiates the network call and retrieves the movie list.
+         *
+         */
         protected MovieResultsPage doInBackground(String... strings) {
             TmdbMovies movies = new TmdbApi(getString(R.string.rotten_api_key)).getMovies();
 
             // Get the top movies
-            MovieResultsPage results = movies.getTopRatedMovies("en", MOVIE_PAGE_LIMIT);
-            return results;
+            return movies.getTopRatedMovies("en", MOVIE_PAGE_LIMIT);
         }
 
         @Override
+        /** When we receive the movies, we need to update the data set for the adapter.
+         *
+         * @param results The movies that were returned.
+         */
         protected void onPostExecute(MovieResultsPage results) {
             super.onPostExecute(results);
 
             // reset the values and add to them
             values.clear();
             for (MovieDb movie : results) {
-                System.out.println(movie.getTitle());
                 values.add(movie.getTitle());
-            }
-
-            Integer index = 0;
-            for (String s : values) {
-                System.out.println("Value[" + index++ +"] = " + s);
             }
 
             // Notify the adapter of the changes

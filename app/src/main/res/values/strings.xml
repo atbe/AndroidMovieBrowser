@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TopMoviesList</string>
+    <string name="refresh_list_button">Refresh List</string>
 </resources>

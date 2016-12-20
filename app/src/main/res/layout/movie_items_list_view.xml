@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+   <ImageView
+       android:layout_width="25dp"
+       android:layout_height="25dp"
+       android:layout_margin="5dp"
+       android:id="@+id/movie_listview_image"
+       android:src="@drawable/black_circle"/>
+
+   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_margin="5dp"
+       android:text="Sample Text"
+       android:id="@+id/movie_listview_title"/>
+
+   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_margin="5dp"
+       android:gravity="right"
+       android:textSize="10sp"
+       android:text="Sample Rating"
+       android:id="@+id/movie_listview_rating"/>
+
+</LinearLayout>

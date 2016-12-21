@@ -1,6 +1,7 @@
 package com.atbe.abe.topmovieslist;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -37,7 +39,28 @@ public class MovieListItemAdapter extends ArrayAdapter<MovieDb> {
         }
 
         // Get the current movie item
-        MovieDb movieItem = getItem(position);
+        final MovieDb movieItem = getItem(position);
+
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                assert movieItem != null;
+                Integer urlIndex = MainActivity.movieTrailerUrls.indexOfKey(movieItem.getId());
+                if (urlIndex > -1) {
+                    // We have a trailer link
+                    Intent movieWebViewIntent = new Intent(getContext(), MovieWebPageActivity.class);
+                    String url = MainActivity.movieTrailerUrls.valueAt(urlIndex);
+
+                    System.out.println("DEBUG: MovieListItemAdapter opening url = " + url);
+
+                    movieWebViewIntent.putExtra("url", url);
+                    getContext().startActivity(movieWebViewIntent);
+                } else {
+                    Toast.makeText(getContext(),
+                            "Sorry, we could not find a trailer for this movie", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
         // The title textview
         ((TextView) convertView.findViewById(R.id.movie_listview_title))

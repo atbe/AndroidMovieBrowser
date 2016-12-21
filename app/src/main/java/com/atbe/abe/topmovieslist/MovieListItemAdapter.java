@@ -17,6 +17,8 @@ import info.movito.themoviedbapi.model.MovieDb;
  * Created by abe on 12/19/16.
  */
 
+/** Custom adapter for the movie items in our list.
+ */
 public class MovieListItemAdapter extends ArrayAdapter<MovieDb> {
 
     public MovieListItemAdapter(Context context, ArrayList<MovieDb> movies) {
@@ -26,32 +28,33 @@ public class MovieListItemAdapter extends ArrayAdapter<MovieDb> {
     @NonNull
     @Override
     /** Getter for a list item
-     *
      */
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater movieInflater = LayoutInflater.from(getContext());
 
-        View movieView = movieInflater.inflate(R.layout.movie_items_list_view, parent, false);
+        if (convertView == null) {
+            LayoutInflater movieInflater = LayoutInflater.from(getContext());
+            convertView = movieInflater.inflate(R.layout.movie_items_list_view, parent, false);
+        }
 
         // Get the current movie item
         MovieDb movieItem = getItem(position);
 
         // The title textview
-        TextView movieTitle = (TextView) movieView.findViewById(R.id.movie_listview_title);
-        movieTitle.setText(movieItem.getTitle());
+        ((TextView) convertView.findViewById(R.id.movie_listview_title))
+                .setText(movieItem.getTitle());
 
         // The rating textview
-        TextView ratingView = (TextView) movieView.findViewById(R.id.movie_listview_rating);
-        System.out.println(movieItem.getVoteCount());
-        String rating = String.valueOf(movieItem.getVoteAverage());
-        ratingView.setText(rating);
+        ((TextView) convertView.findViewById(R.id.movie_listview_rating))
+                .setText(String.valueOf(movieItem.getVoteAverage()));
 
         // The movie cover art
-        ImageView moviePoster = (ImageView) movieView.findViewById(R.id.movie_listview_image);
-
         // TODO: no fallback image yet. Implement one if the poster is not found.
-        moviePoster.setImageBitmap(MainActivity.imageUrls.get(movieItem.getId()));
+        ((ImageView) convertView.findViewById(R.id.movie_listview_image))
+                .setImageBitmap(MainActivity.movieImagesArray.get(movieItem.getId()));
 
-        return movieView;
+        ((TextView) convertView.findViewById(R.id.movie_listview_description))
+                .setText(movieItem.getOverview());
+
+        return convertView;
     }
 }

@@ -31,7 +31,7 @@ public class MainActivity extends FragmentActivity {
     private ArrayList<MovieDb> movieItems = new ArrayList<MovieDb>();
 
     // Image map for the movies
-    public static SparseArray<Bitmap> imageUrls = new SparseArray<Bitmap>();
+    public static SparseArray<Bitmap> movieImagesArray = new SparseArray<Bitmap>();
 
     // The adapter with the movies
     ArrayAdapter theAdapter;
@@ -65,48 +65,89 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
-    /** Handles our movie requests and updates the listview.
+    /** Called when the movies are retireved and spawns a thread to go out and
+     * get each image for each movie.
      */
-    private class GetTopMovies extends AsyncTask<String, Void, MovieResultsPage> {
-
-        /** Helper which downloads the image file.
-         * @param uri The URL the image is housed at.
-         * @return The image or null if there was some error.
-         */
-        private Bitmap GetImage(String uri) {
-            Bitmap image = null;
-            try{
-                InputStream in = new java.net.URL(uri).openStream();
-                image = BitmapFactory.decodeStream(in);
-            } catch (MalformedURLException e) {
-                System.out.println("Error: GetImage uri invalid: " + uri);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return image;
+    public void AddImagesToMovieList() {
+        // Goes through each movie recieved and gets its image
+        for (MovieDb movie : movieItems) {
+            new GetMovieImage().execute(movie);
         }
+    }
+
+    /** Helper which downloads the image file.
+     * @param uri The URL the image is housed at.
+     * @return The image or null if there was some error.
+     */
+    private Bitmap GetImage(String uri) {
+        Bitmap image = null;
+        try{
+            InputStream in = new java.net.URL(uri).openStream();
+            image = BitmapFactory.decodeStream(in);
+        } catch (MalformedURLException e) {
+            System.out.println("Error: GetImage uri invalid: " + uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return image;
+    }
+
+    /** Gets the images for our movie items one by one and updates the listview data source.
+     */
+    private class GetMovieImage extends AsyncTask<MovieDb, Void, SparseArray<Bitmap>> {
 
         @Override
-        /** Initiates the network call and retrieves the movie list.
-         *
+        /** Initiates the network call and retrieves the image for the movie.
          */
-        protected MovieResultsPage doInBackground(String... strings) {
+        protected SparseArray<Bitmap> doInBackground(MovieDb... movies) {
             TmdbApi api = new TmdbApi(getString(R.string.rotten_api_key));
-            // Grab the top rated movies
-            MovieResultsPage movies = api.getMovies().getTopRatedMovies("en", MOVIE_PAGE_LIMIT);
 
             // Handles storing the images
             String imageBaseUrl = api.getConfiguration().getSecureBaseUrl();
             String imageSizeParam = "w154";
+            SparseArray<Bitmap> images = new SparseArray<Bitmap>();
+
             for (MovieDb movie : movies) {
                 String posterUri = imageBaseUrl + imageSizeParam + movie.getPosterPath();
                 System.out.println(posterUri);
                 Bitmap image = GetImage(posterUri);
-                imageUrls.append(movie.getId(), image);
+                images.append(movie.getId(), image);
             }
 
-            // Get the top movies
-            return movies;
+            return images;
+        }
+
+        @Override
+        /** When we receive the image, we need to update the data set for the adapter.
+         *
+         * @param results The movies that were returned.
+         */
+        protected void onPostExecute(SparseArray<Bitmap> images) {
+            super.onPostExecute(images);
+
+            // Process all the movies in-case we got more than one
+            for (int i = 0; i < images.size(); i++) {
+                movieImagesArray.append(images.keyAt(i), images.valueAt(i));
+
+                // Notify the adapter of the changes
+                theAdapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+
+    /** Handles our movie requests and updates the listview.
+     * This task does not get
+     */
+    private class GetTopMovies extends AsyncTask<String, Void, MovieResultsPage> {
+
+        @Override
+        /** Initiates the network call and retrieves the movie list.
+         */
+        protected MovieResultsPage doInBackground(String... strings) {
+            TmdbApi api = new TmdbApi(getString(R.string.rotten_api_key));
+            // Grab the top rated movies
+            return api.getMovies().getTopRatedMovies("en", MOVIE_PAGE_LIMIT);
         }
 
         @Override
@@ -125,6 +166,9 @@ public class MainActivity extends FragmentActivity {
                 // Notify the adapter of the changes
                 theAdapter.notifyDataSetChanged();
             }
+
+            // Go get the
+            AddImagesToMovieList();
         }
     }
 }

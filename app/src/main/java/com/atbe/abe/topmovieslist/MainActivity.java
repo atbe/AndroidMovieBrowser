@@ -1,15 +1,19 @@
 package com.atbe.abe.topmovieslist;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.SparseArray;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,13 +43,22 @@ public class MainActivity extends AppCompatActivity {
     // The adapter with the movies
     ArrayAdapter theAdapter;
 
+    // Indicates whether the app has movies or not for refresh purposes
+    public Boolean HasMovies() {
+        return !movieItems.isEmpty();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate our custom menu options
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Set the toolbar
-        setSupportActionBar(((Toolbar) findViewById(R.id.my_toolbar)));
 
         // Movie list adapter needs the movies and the image map
         theAdapter = new MovieListItemAdapter(this, movieItems);
@@ -54,28 +67,11 @@ public class MainActivity extends AppCompatActivity {
         ListView moviesList = (ListView) findViewById(R.id.movie_listview);
         moviesList.setAdapter(theAdapter);
 
-        // Get the initial batch of movies
-        new GetTopMovies().execute();
+        // Simulate refresh button clicked to load initial content
+        onRefreshMenuItemClicked((MenuItem) findViewById(R.id.menu_refresh_item));
     }
 
-    /** This handler will go fetch a list of movies and add them to the movie list
-     *
-     * @param view The view the button was clicked from.
-     */
-    public void onClickRefreshListButton(View view) {
-        /*
-
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
-        } else {
-            Toast.makeText(this, "No internet connection. Try again later.", Toast.LENGTH_SHORT).show();
-        }
-        */
-    }
-
-    /** Called when the movies are retireved and spawns a thread to go out and
+    /** Called when the movies are retrieved and spawns a thread to go out and
      * get each image for each movie.
      */
     public void GetMovieTrailersAndImages() {
@@ -86,26 +82,47 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /** Helper which downloads the image file.
-     * @param uri The URL the image is housed at.
-     * @return The image or null if there was some error.
+
+    /** Exit button handler kills the main activity.
+     * @param item The menu item that was clicked.
      */
-    private Bitmap GetImage(String uri) {
-        Bitmap image = null;
-        try{
-            InputStream in = new java.net.URL(uri).openStream();
-            image = BitmapFactory.decodeStream(in);
-        } catch (MalformedURLException e) {
-            System.out.println("Error: GetImage uri invalid: " + uri);
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void onExitMenuItemClicked(MenuItem item) {
+        finish();
+    }
+
+    public void onRefreshMenuItemClicked(MenuItem item) {
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            // Get the initial batch of movies
+            new GetTopMovies().execute();
+        } else {
+            String msg = "No internet connection. Please refresh when you have a network connection.";
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         }
-        return image;
     }
 
     /** Gets the images for our movie items one by one and updates the listview data source.
      */
     private class GetMovieImage extends AsyncTask<MovieDb, Void, SparseArray<Bitmap>> {
+
+        /** Helper which downloads the image file.
+         * @param uri The URL the image is housed at.
+         * @return The image or null if there was some error.
+         */
+        private Bitmap GetImage(String uri) {
+            Bitmap image = null;
+            try{
+                InputStream in = new java.net.URL(uri).openStream();
+                image = BitmapFactory.decodeStream(in);
+            } catch (MalformedURLException e) {
+                System.out.println("Error: GetImage uri invalid: " + uri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return image;
+        }
 
         @Override
         /** Initiates the network call and retrieves the image for the movie.
@@ -120,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
 
             for (MovieDb movie : movies) {
                 String posterUri = imageBaseUrl + imageSizeParam + movie.getPosterPath();
-                System.out.println(posterUri);
                 Bitmap image = GetImage(posterUri);
                 images.append(movie.getId(), image);
             }
@@ -172,10 +188,10 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(results);
 
             // reset the movieNames and add to them
-//            movieItems.clear();
             for (MovieDb movie : results) {
                 movieItems.add(movie);
             }
+
             // Notify the adapter of the changes
             theAdapter.notifyDataSetChanged();
 
@@ -202,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
                 for (Video video : videoList) {
                     if (video.getType().equals("Trailer") && video.getSite().equals("YouTube")) {
                         youtubeId = video.getKey();
+                        break;
                     }
                 }
 
@@ -225,10 +242,8 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(SparseArray<String> urls) {
             super.onPostExecute(urls);
 
-            // reset the movieNames and add to them
-//            movieItems.clear();
             for (int i = 0; i < urls.size(); i++) {
-                System.out.println("DEBUG: GetMovieTrailers-onPostExecute URL Adding " + urls.valueAt(i));
+                //System.out.println("DEBUG: GetMovieTrailers-onPostExecute URL Adding " + urls.valueAt(i));
                 movieTrailerUrls.append(urls.keyAt(i), urls.valueAt(i));
 
                 // Notify the adapter of the changes

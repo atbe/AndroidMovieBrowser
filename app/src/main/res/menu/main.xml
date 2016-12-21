@@ -1,0 +1,30 @@
+<menu tools:context="com.atbe.abe.topmovieslist.MainActivity"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- The Options or Overflow menu is located in the upper right hand
+    corner for devices running Android 4.0 and above.
+    To make this menu use the menu element and define each option in an
+    item element.
+
+    orderInCategory defines the order of appearance
+
+    showAsAction defines that the item should appear on the action bar
+    if there is enough room or not. If you want to support the Action Bar
+    for versions of Android below 2.1 use your apps name space instead of
+    android so you can use import android.support.v7.app.ActionBarActivity;
+    Use withText to show the title in the action bar
+    icon defines a icon to use for the item
+
+    checkableBehavior is used to allow the user to select a single or all
+    items when the menu items are surrounded by group -->
+
+    <item android:id="@+id/menu_refresh_item"
+        android:onClick="onRefreshMenuItemClicked"
+        android:title="@string/main_menu_refresh_item_text" />
+
+    <item android:id="@+id/menu_exit_item"
+        android:onClick="onExitMenuItemClicked"
+        android:title="@string/main_menu_exit_item_text" />
+
+</menu>

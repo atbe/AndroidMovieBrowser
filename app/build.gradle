@@ -35,8 +35,13 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    compile group: 'info.movito', name: 'themoviedbapi', version: '1.4'
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile 'com.android.support:design:24.2.1'
     testCompile 'junit:junit:4.12'
+
+    // The Movie DB api
+    compile group: 'info.movito', name: 'themoviedbapi', version: '1.4'
+    // Chrome custom tabs for pleasant webviews
+    compile 'com.android.support:customtabs:24+'
+
 }

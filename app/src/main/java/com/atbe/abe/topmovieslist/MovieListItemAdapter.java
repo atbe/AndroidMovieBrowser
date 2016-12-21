@@ -1,8 +1,9 @@
 package com.atbe.abe.topmovieslist;
 
 import android.content.Context;
-import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.customtabs.CustomTabsIntent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +24,12 @@ import info.movito.themoviedbapi.model.MovieDb;
  */
 public class MovieListItemAdapter extends ArrayAdapter<MovieDb> {
 
+    /// Used to track the context of the adapter source
+    private Context mContext = null;
+
     public MovieListItemAdapter(Context context, ArrayList<MovieDb> movies) {
         super(context, R.layout.movie_items_list_view, movies);
+        this.mContext = context;
     }
 
     @NonNull
@@ -45,16 +50,17 @@ public class MovieListItemAdapter extends ArrayAdapter<MovieDb> {
             @Override
             public void onClick(View view) {
                 assert movieItem != null;
-                Integer urlIndex = MainActivity.movieTrailerUrls.indexOfKey(movieItem.getId());
-                if (urlIndex > -1) {
-                    // We have a trailer link
-                    Intent movieWebViewIntent = new Intent(getContext(), MovieWebPageActivity.class);
-                    String url = MainActivity.movieTrailerUrls.valueAt(urlIndex);
 
+                Integer urlIndex = MainActivity.movieTrailerUrls.indexOfKey(movieItem.getId());
+                // If we have a trailer url for this Movie item
+                if (urlIndex > -1) {
+                    String url = MainActivity.movieTrailerUrls.valueAt(urlIndex);
                     System.out.println("DEBUG: MovieListItemAdapter opening url = " + url);
 
-                    movieWebViewIntent.putExtra("url", url);
-                    getContext().startActivity(movieWebViewIntent);
+                    // Use a chrome custom tab to open the link
+                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                    CustomTabsIntent customTabsIntent = builder.build();
+                    customTabsIntent.launchUrl((MainActivity)mContext, Uri.parse(url));
                 } else {
                     Toast.makeText(getContext(),
                             "Sorry, we could not find a trailer for this movie", Toast.LENGTH_SHORT).show();

@@ -35,10 +35,13 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<MovieDb> movieItems = new ArrayList<MovieDb>();
 
     // Image map for the movies
-    public static SparseArray<Bitmap> movieImagesArray = new SparseArray<Bitmap>();
+    private SparseArray<Bitmap> mMovieImages = new SparseArray<Bitmap>();
 
     // Trailer links for clicking
-    public static SparseArray<String> movieTrailerUrls = new SparseArray<String>();
+    private SparseArray<String> mMovieTrailerUrls = new SparseArray<String>();
+
+    public String GetMovieTrailerUrl(int movieId) { return mMovieTrailerUrls.get(movieId); }
+    public Bitmap GetMovieBitmap(int movieId) { return mMovieImages.get(movieId); }
 
     // The adapter with the movies
     ArrayAdapter theAdapter;
@@ -46,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
     // Indicates whether the app has movies or not for refresh purposes
     public Boolean HasMovies() {
         return !movieItems.isEmpty();
+    }
+
+    public enum MovieOptions {
+        GetNowPlayingMovies, GetTopRatedMovies, GetLatestMovies,
     }
 
     @Override
@@ -62,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Movie list adapter needs the movies and the image map
         theAdapter = new MovieListItemAdapter(this, movieItems);
+
+
 
         // Grab the ListView and attach the adapter
         ListView moviesList = (ListView) findViewById(R.id.movie_listview);
@@ -154,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Process all the movies in-case we got more than one
             for (int i = 0; i < images.size(); i++) {
-                movieImagesArray.append(images.keyAt(i), images.valueAt(i));
+                mMovieImages.append(images.keyAt(i), images.valueAt(i));
 
                 // Notify the adapter of the changes
                 theAdapter.notifyDataSetChanged();
@@ -228,6 +237,8 @@ public class MainActivity extends AppCompatActivity {
                     System.out.println("DEBUG: GetMovieTrailers get site = " + youtubeId);
 
                     trailerUrls.append(movie.getId(), youtubeId);
+                } else {
+                    trailerUrls.append(movie.getId(), null);
                 }
             }
 
@@ -244,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
 
             for (int i = 0; i < urls.size(); i++) {
                 //System.out.println("DEBUG: GetMovieTrailers-onPostExecute URL Adding " + urls.valueAt(i));
-                movieTrailerUrls.append(urls.keyAt(i), urls.valueAt(i));
+                mMovieTrailerUrls.append(urls.keyAt(i), urls.valueAt(i));
 
                 // Notify the adapter of the changes
                 theAdapter.notifyDataSetChanged();

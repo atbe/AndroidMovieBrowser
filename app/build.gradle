@@ -44,4 +44,5 @@ dependencies {
     // Chrome custom tabs for pleasant webviews
     compile 'com.android.support:customtabs:24+'
 
+    compile "com.android.support:recyclerview-v7:24+"
 }

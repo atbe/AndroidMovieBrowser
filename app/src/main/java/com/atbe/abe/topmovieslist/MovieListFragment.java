@@ -15,8 +15,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.model.MovieDb;
@@ -86,24 +88,24 @@ public class MovieListFragment extends Fragment {
 
     public enum MovieOptions {
         NowPlayingMovies, TopRatedMovies, UpcomingMovies;
-        }
+    }
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         System.out.println("DEBUG: MovieListFragment(onActivityCreated) - called.");
         super.onActivityCreated(savedInstanceState);
 
+        // Go get the movies based on the option
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerviewAdapter = new MovieRecyclerAdapter(new ArrayList<MovieContainer>());
         mRecyclerView.setAdapter(mRecyclerviewAdapter);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        // Go get the movies based on the option
-        if (mMovieOption != null) {
+        if (mRecyclerviewAdapter.isEmpty()) {
             new GetMovies(mRecyclerviewAdapter).execute(mMovieOption);
         }
-
     }
 
     public MovieListFragment() {
@@ -115,8 +117,23 @@ public class MovieListFragment extends Fragment {
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static MovieListFragment newInstance(MovieOptions option) {
+    public static MovieListFragment newInstance(int optionInt) {
         System.out.println("DEBUG: MovieListFragment(newInstance) - called.");
+        MovieOptions option;
+        switch(optionInt) {
+            case 0:
+                option = MovieOptions.NowPlayingMovies;
+                break;
+            case 1:
+                option = MovieOptions.UpcomingMovies;
+                break;
+            case 2:
+                option = MovieOptions.TopRatedMovies;
+                break;
+            default:
+                System.out.println("DEBUG: MovieListFragment(newInstance switch) - default!! = " + optionInt);
+                option = MovieOptions.NowPlayingMovies;
+        }
         System.out.println("DEBUG: MovieListFragment(newInstance) - option = " + option.toString());
 
         MovieListFragment fragment = new MovieListFragment();
@@ -159,11 +176,15 @@ public class MovieListFragment extends Fragment {
             // Grab the top rated movies
 
             MovieOptions option = options[0];
+            System.out.println("DEBUG: GetMovies(doInBackground) - Getting " + option.toString());
             switch (option) {
                 case NowPlayingMovies:
                     return api.getMovies().getNowPlayingMovies("en", CurrentMoviePage);
                 case UpcomingMovies:
+                    // TODO: Fix this call to grab upcoming movies from the current date
                     return api.getMovies().getUpcoming("en", CurrentMoviePage);
+                case TopRatedMovies:
+                    return api.getMovies().getTopRatedMovies("en", CurrentMoviePage);
             }
 
             // TODO: Is there a way around this silly return?
@@ -184,7 +205,7 @@ public class MovieListFragment extends Fragment {
                     // reset the movieNames and add to them
                     for (MovieDb movie : results) {
                         System.out.println("DEBUG: GetMovies - Adding movie " + movie.getTitle());
-                        adapter.addMovie(new MovieContainer(movie));
+                        adapter.addMovie(new MovieContainer(movie, getActivity(), mRecyclerviewAdapter));
                     }
 
 

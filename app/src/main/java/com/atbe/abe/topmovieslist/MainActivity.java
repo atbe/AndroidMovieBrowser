@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -23,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
+
+    private SparseArray<Fragment> mFragments;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -46,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
+        mFragments = new SparseArray<Fragment>();
     }
 
 
@@ -86,16 +91,14 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("DEBUG: MainActivity - getItem position = " + position);
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            switch (position) {
-                case 0:
-                    return MovieListFragment.newInstance(MovieListFragment.MovieOptions.NowPlayingMovies);
-                case 1:
-                    return MovieListFragment.newInstance(MovieListFragment.MovieOptions.UpcomingMovies);
-                case 2:
-                    return MovieListFragment.newInstance(MovieListFragment.MovieOptions.TopRatedMovies);
-                default:
-                    return MovieListFragment.newInstance(MovieListFragment.MovieOptions.NowPlayingMovies);
+
+            Fragment fragment = mFragments.get(position, null);
+            if (fragment == null) {
+                System.out.println("DEBUG: MainActivity - getItem CREATING FRAGMENT " + position);
+                fragment = MovieListFragment.newInstance(position);
+                mFragments.append(position, fragment);
             }
+            return fragment;
         }
 
         @Override
@@ -112,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 case 1:
                     return "Coming Soon";
                 case 2:
-                    return "SECTION 3";
+                    return "Top Rated";
             }
             return null;
         }

@@ -46,3 +46,6 @@ dependencies {
 
     compile "com.android.support:recyclerview-v7:24+"
 }
+repositories {
+    mavenCentral()
+}

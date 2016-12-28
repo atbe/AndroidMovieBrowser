@@ -1,53 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-  <LinearLayout android:id="@+id/movie_text_content"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:orientation="vertical">
+        <ImageView android:id="@+id/movie_listview_poster"
+            android:layout_width="100dp"
+            android:layout_height="120dp"
+            android:src="@drawable/black_circle"
+            android:layout_alignParentStart="true" />
 
-       <LinearLayout
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:textStyle="bold"
+            android:text="Sample Title"
+            android:layout_toRightOf="@id/movie_listview_poster"
+            android:id="@+id/movie_listview_title"/>
 
-           <TextView
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_margin="5dp"
-               android:textStyle="bold"
-               android:text="Sample Title"
-               android:id="@+id/movie_listview_title"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:text="Sample Rating"
+            android:id="@+id/movie_listview_rating"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
+            android:layout_below="@+id/movie_listview_title"
+            android:layout_toEndOf="@+id/movie_listview_poster" />
 
-           <TextView
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_margin="5dp"
-               android:gravity="right"
-               android:textSize="10sp"
-               android:textStyle="italic"
-               android:text="Sample Rating"
-               android:id="@+id/movie_listview_rating"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:text="Some sample description of a movie that does not exist blahha."
+            android:id="@+id/movie_listview_description"
+            android:layout_below="@+id/movie_listview_rating"
+            android:layout_toEndOf="@+id/movie_listview_poster" />
 
-       </LinearLayout>
-
-      <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:textSize="10sp"
-          android:text="Some sample description of a movie that does not exist blahha."
-          android:layout_margin="5dp"
-          android:id="@+id/movie_listview_description"/>
-
-  </LinearLayout>
-
-    <ImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:id="@+id/movie_listview_image"
-        android:layout_toStartOf="@id/movie_text_content"
-        android:src="@drawable/black_circle"/>
 
 </RelativeLayout>
+

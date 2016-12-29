@@ -1,11 +1,16 @@
 package com.atbe.abe.topmovieslist;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.SparseArray;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -31,30 +36,56 @@ public class MovieContainer {
         mActivity = activity;
         mAdapter = adapter;
 
-        new FetchPosterImageTask().execute(mMovie);
+        // if we're not in a list, no need to grab the poster
+        if (mAdapter != null) {
+            GoFetchPosterImage();
+        }
     }
 
-    public void setmPosterImage(Bitmap mPosterImage) {
+    public void setPosterImage(Bitmap mPosterImage) {
         this.mPosterImage = mPosterImage;
     }
 
-    public void setmTrailerUrl(String mTrailerUrl) {
+    public void setTrailerUrl(String mTrailerUrl) {
         this.mTrailerUrl = mTrailerUrl;
     }
 
-    public MovieDb getmMovie() {
+    public MovieDb getMovieDb() {
         return mMovie;
     }
 
-    public Bitmap getmPosterImage() {
+    public Bitmap getPosterImage() {
         return mPosterImage;
     }
 
-    public String getmTrailerUrl() {
+    public String getTrailerUrl() {
         return mTrailerUrl;
     }
 
+    public void GoFetchPosterImage() {
+        // do we have a cached copy?
+        File posterFile = null;
+        try {
+            String fileName = mActivity.getFilesDir().getCanonicalPath().concat(mMovie.getPosterPath());
+//            System.out.println("DEBUG: MovieContainer(GoFetchPosterImage) - attempting to load\n" +
+//                    fileName);
+            posterFile = new File(fileName);
+
+            // check if it exists, otherwise go fetch it
+            if (posterFile.exists()) {
+//                System.out.println("DEBUG: MovieContainer(GoFetchPosterImage) - " + mMovie.getTitle() + " LOADED. ");
+                mPosterImage = BitmapFactory.decodeFile(posterFile.getCanonicalPath());
+            } else {
+                new FetchPosterImageTask().execute(mMovie);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private class FetchPosterImageTask extends AsyncTask<MovieDb, Void, Bitmap> {
+        MovieDb movie = null;
 
         /** Helper which downloads the image file.
          * @param uri The URL the image is housed at.
@@ -83,7 +114,7 @@ public class MovieContainer {
             String imageSizeParam = "w154";
             SparseArray<Bitmap> images = new SparseArray<Bitmap>();
 
-            MovieDb movie = movies[0];
+            this.movie = movies[0];
             String posterUri = imageBaseUrl + imageSizeParam + movie.getPosterPath();
             Bitmap image = GetImage(posterUri);
             images.append(movie.getId(), image);
@@ -104,10 +135,25 @@ public class MovieContainer {
         protected void onPostExecute(Bitmap image) {
             super.onPostExecute(image);
 
-            setmPosterImage(image);
+            // store the image
+            try {
+                // substring because the name contains a /
+                FileOutputStream out = mActivity.openFileOutput(movie.getPosterPath().substring(1), Context.MODE_APPEND);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                image.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                out.write(stream.toByteArray());
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-            // Notify the adapter of the changes
-            mAdapter.notifyDataSetChanged();
+            setPosterImage(image);
+
+            if (mAdapter != null) {
+                // Notify the adapter of the changes
+                mAdapter.notifyDataSetChanged();
+            }
         }
     }
 

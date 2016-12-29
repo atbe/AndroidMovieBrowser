@@ -1,4 +1,4 @@
-package com.atbe.abe.topmovieslist;
+package com.atbe.abe.topmovieslist.Activites;
 
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -9,9 +9,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.atbe.abe.topmovieslist.MovieListFragment;
+import com.atbe.abe.topmovieslist.R;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main2, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -76,6 +80,12 @@ public class MainActivity extends AppCompatActivity {
     public void onExitOptionClicked(MenuItem item) {
         finish();
     }
+
+    public void onRefreshOptionClicked(MenuItem item) {
+
+    }
+
+    private final String MOVIE_FRAGMENT_TAG_PREFIX = "movie_fragment_";
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to

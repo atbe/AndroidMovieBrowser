@@ -204,7 +204,7 @@ public class MovieListFragment extends Fragment {
                 if (adapter != null) {
                     // reset the movieNames and add to them
                     for (MovieDb movie : results) {
-                        System.out.println("DEBUG: GetMovies - Adding movie " + movie.getTitle());
+                        //System.out.println("DEBUG: GetMovies - Adding movie " + movie.getTitle());
                         adapter.addMovie(new MovieContainer(movie, getActivity(), mRecyclerviewAdapter));
                     }
 

@@ -2,6 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.atbe.abe.topmovieslist.MainActivity">
+
+    <item
+        android:id="@+id/action_exit"
+        android:onClick="onExitOptionClicked"
+        android:title="Exit" />
+
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

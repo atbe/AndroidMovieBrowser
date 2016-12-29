@@ -25,8 +25,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
-    private SparseArray<Fragment> mFragments;
-
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -45,12 +43,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager.setOffscreenPageLimit(3);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        mFragments = new SparseArray<Fragment>();
     }
 
 
@@ -76,6 +73,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void onExitOptionClicked(MenuItem item) {
+        finish();
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -92,13 +93,7 @@ public class MainActivity extends AppCompatActivity {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
 
-            Fragment fragment = mFragments.get(position, null);
-            if (fragment == null) {
-                System.out.println("DEBUG: MainActivity - getItem CREATING FRAGMENT " + position);
-                fragment = MovieListFragment.newInstance(position);
-                mFragments.append(position, fragment);
-            }
-            return fragment;
+            return MovieListFragment.newInstance(position);
         }
 
         @Override
@@ -120,47 +115,6 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
     }
-
-//
-//
-//    /// Used to follow the current page
-//    private int CurrentMoviePage = 0;
-//
-//    /** Handles our movie requests and updates the listview.
-//     * This task does not get
-//     */
-//    private class GetTopMovies extends AsyncTask<String, Void, MovieResultsPage> {
-//
-//        @Override
-//        /** Initiates the network call and retrieves the movie list.
-//         */
-//        protected MovieResultsPage doInBackground(String... strings) {
-//            TmdbApi api = new TmdbApi(getString(R.string.rotten_api_key));
-//            // Grab the top rated movies
-//            return api.getMovies().getTopRatedMovies("en", CurrentMoviePage++);
-//        }
-//
-//        @Override
-//        /** When we receive the movies, we need to update the data set for the adapter.
-//         *
-//         * @param results The movies that were returned.
-//         */
-//        protected void onPostExecute(MovieResultsPage results) {
-//            super.onPostExecute(results);
-//
-//            // reset the movieNames and add to them
-//            for (MovieDb movie : results) {
-//                movieItems.add(movie);
-//            }
-//
-//            // Notify the adapter of the changes
-//            theAdapter.notifyDataSetChanged();
-//
-//            // Go get the trailers and images for each movie
-//            GetMovieTrailersAndImages();
-//        }
-//    }
-
 
 //    /** Handles our movie requests and updates the listview.
 //     * This task does not get

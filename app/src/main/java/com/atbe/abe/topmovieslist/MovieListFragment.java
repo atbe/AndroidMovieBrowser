@@ -4,6 +4,9 @@ package com.atbe.abe.topmovieslist;
  * Created by abe on 12/24/16.
  */
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,57 +17,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
-import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.List;
 
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
-
-//public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MyViewHolder> {
-//
-//    private List<Movie> moviesList;
-//
-//    public class MyViewHolder extends RecyclerView.ViewHolder {
-//        public TextView title, year, genre;
-//
-//        public MyViewHolder(View view) {
-//            super(view);
-//            title = (TextView) view.findViewById(R.id.title);
-//            genre = (TextView) view.findViewById(R.id.genre);
-//            year = (TextView) view.findViewById(R.id.year);
-//        }
-//    }
-//
-//
-//    public MoviesAdapter(List<Movie> moviesList) {
-//        this.moviesList = moviesList;
-//    }
-//
-//    @Override
-//    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-//        View itemView = LayoutInflater.from(parent.getContext())
-//                .inflate(R.layout.movie_list_row, parent, false);
-//
-//        return new MyViewHolder(itemView);
-//    }
-//
-//    @Override
-//    public void onBindViewHolder(MyViewHolder holder, int position) {
-//        Movie movie = moviesList.get(position);
-//        holder.title.setText(movie.getTitle());
-//        holder.genre.setText(movie.getGenre());
-//        holder.year.setText(movie.getYear());
-//    }
-//
-//    @Override
-//    public int getItemCount() {
-//        return moviesList.size();
-//    }
-//}
 
 /**
  * A placeholder fragment containing a simple view.
@@ -90,6 +50,26 @@ public class MovieListFragment extends Fragment {
         NowPlayingMovies, TopRatedMovies, UpcomingMovies;
     }
 
+    public void GoGetMovies() {
+        ConnectivityManager cm =
+                (ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+
+        if (isConnected) {
+            if (mRecyclerviewAdapter.isEmpty()) {
+                new GetMovies(mRecyclerviewAdapter).execute(mMovieOption);
+            } else {
+                // we have movies, check on the images
+                mRecyclerviewAdapter.refreshImages();
+            }
+        } else {
+            Toast.makeText(getContext(), "No internet connection available. Please refresh.",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -98,14 +78,12 @@ public class MovieListFragment extends Fragment {
 
         // Go get the movies based on the option
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
-        mRecyclerviewAdapter = new MovieRecyclerAdapter(new ArrayList<MovieContainer>());
+        mRecyclerviewAdapter = new MovieRecyclerAdapter(new ArrayList<MovieContainer>(), mRecyclerView);
         mRecyclerView.setAdapter(mRecyclerviewAdapter);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        if (mRecyclerviewAdapter.isEmpty()) {
-            new GetMovies(mRecyclerviewAdapter).execute(mMovieOption);
-        }
+        GoGetMovies();
     }
 
     public MovieListFragment() {
@@ -207,8 +185,6 @@ public class MovieListFragment extends Fragment {
                         //System.out.println("DEBUG: GetMovies - Adding movie " + movie.getTitle());
                         adapter.addMovie(new MovieContainer(movie, getActivity(), mRecyclerviewAdapter));
                     }
-
-
                     mRecyclerviewAdapter.notifyDataSetChanged();
                 }
             }

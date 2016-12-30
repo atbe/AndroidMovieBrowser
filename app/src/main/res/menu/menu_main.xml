@@ -1,12 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.atbe.abe.topmovieslist.MainActivity">
+    tools:context="com.atbe.abe.topmovieslist.Activites.MainActivity">
 
     <item
         android:id="@+id/action_exit"
         android:onClick="onExitOptionClicked"
         android:title="Exit" />
+
+    <item
+        android:id="@+id/action_refresh"
+        android:onClick="onRefreshOptionClicked"
+        android:title="Refresh"/>
 
     <item
         android:id="@+id/action_settings"

@@ -100,6 +100,8 @@ public class MovieContainer {
                 System.out.println("Error: GetImage uri invalid: " + uri);
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
             return image;
         }
@@ -112,12 +114,10 @@ public class MovieContainer {
 
             String imageBaseUrl = api.getConfiguration().getSecureBaseUrl();
             String imageSizeParam = "w154";
-            SparseArray<Bitmap> images = new SparseArray<Bitmap>();
 
             this.movie = movies[0];
             String posterUri = imageBaseUrl + imageSizeParam + movie.getPosterPath();
             Bitmap image = GetImage(posterUri);
-            images.append(movie.getId(), image);
 
             if (image == null) {
                 System.out.println("ERROR: MovieContainer[FetchPosterImageTask](doInBackground) - " +
@@ -134,6 +134,11 @@ public class MovieContainer {
          */
         protected void onPostExecute(Bitmap image) {
             super.onPostExecute(image);
+
+            // protect against network loss
+            if (image == null) {
+                return;
+            }
 
             // store the image
             try {

@@ -1,5 +1,6 @@
 package com.atbe.abe.topmovieslist.Activites;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,6 +17,8 @@ import com.atbe.abe.topmovieslist.MovieListFragment;
 import com.atbe.abe.topmovieslist.R;
 
 import java.util.ArrayList;
+
+import info.movito.themoviedbapi.model.MovieList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,6 +72,16 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        switch (id) {
+            case R.id.action_exit:
+                finish();
+                break;
+            case R.id.action_settings:
+                break;
+            case R.id.action_refresh:
+                RefreshAllFragments();
+        }
+
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
@@ -77,15 +90,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onExitOptionClicked(MenuItem item) {
-        finish();
+    public void RefreshAllFragments() {
+        Intent refresh = new Intent(MovieListFragment.REFRESH_MOVIE_LISTS_BROADCAST_MESSAGE);
+        sendBroadcast(refresh);
     }
-
-    public void onRefreshOptionClicked(MenuItem item) {
-
-    }
-
-    private final String MOVIE_FRAGMENT_TAG_PREFIX = "movie_fragment_";
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to

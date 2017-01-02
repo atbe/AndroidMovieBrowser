@@ -5,12 +5,10 @@
 
     <item
         android:id="@+id/action_exit"
-        android:onClick="onExitOptionClicked"
         android:title="Exit" />
 
     <item
         android:id="@+id/action_refresh"
-        android:onClick="onRefreshOptionClicked"
         android:title="Refresh"/>
 
     <item
